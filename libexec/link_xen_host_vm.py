@@ -101,16 +101,19 @@ def main(output, user, password, rules, xenserver):
       s = con_poolmaster(xs, user, password)
       vms = s.xenapi.VM.get_all()
       for vm in vms:
-        record = s.xenapi.VM.get_record(vm)
-        if not(record["is_a_template"]) and not(record["is_control_domain"]):
-          vhost = s.xenapi.VM.get_resident_on(vm)
-          if vhost != "OpaqueRef:NULL":
-            host = s.xenapi.host.get_hostname(vhost)
-            vm_name = s.xenapi.VM.get_name_label(vm)
-            if host in res.keys():
-              res[host].append(vm_name)
-            else:
-              res[host] = [vm_name]
+        try:
+          record = s.xenapi.VM.get_record(vm)
+          if not(record["is_a_template"]) and not(record["is_control_domain"]):
+            vhost = s.xenapi.VM.get_resident_on(vm)
+            if vhost != "OpaqueRef:NULL":
+              host = s.xenapi.host.get_hostname(vhost)
+              vm_name = s.xenapi.VM.get_name_label(vm)
+              if host in res.keys():
+                res[host].append(vm_name)
+              else:
+                res[host] = [vm_name]
+        except:
+          pass
       s.xenapi.session.logout()
     except:
       pass
